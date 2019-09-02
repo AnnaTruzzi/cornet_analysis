@@ -13,7 +13,7 @@ df_aoa=pd.DataFrame(columns=['stage','conv','aoa','loss','node'])
 
 for stage in [0,5,10,20,30]:
     for conv in range(0,4):
-        lcpth='/home/ubuntu/cornet_analysis/linearclass_time_%02d_conv_%d_v3'%(stage,conv)
+        lcpth='/home/rhodricusack/linearclass_v3/linearclass_time_%02d_conv_%d_v3'%(stage,conv)
         d={'stage':[stage],'conv':[conv]}
         for item in ['prec1','prec5','loss_log']:
             itpth=path.join(lcpth,'log',item)
