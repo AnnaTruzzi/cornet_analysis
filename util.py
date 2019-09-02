@@ -13,7 +13,12 @@ from torch.utils.data.sampler import Sampler
 
 import cornet
 
-
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
 def load_model(path):
     """Loads model and return it without DataParallel table."""

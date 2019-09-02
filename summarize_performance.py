@@ -11,9 +11,9 @@ import matplotlib
 df=pd.DataFrame(columns=['stage','conv','prec1','prec5','loss_log'])
 df_aoa=pd.DataFrame(columns=['stage','conv','aoa','loss','node'])
 
-for stage in [0,5,10,20,30]:
+for stage in [0,1,2,3,4,5,10,20,30]:
     for conv in range(0,4):
-        lcpth='/home/ubuntu/cornet_analysis/linearclass_time_%02d_conv_%d_v3'%(stage,conv)
+        lcpth='/home/ubuntu/cornet_analysis/linearclass_v3/linearclass_time_%02d_conv_%d_v3'%(stage,conv)
         d={'stage':[stage],'conv':[conv]}
         for item in ['prec1','prec5','loss_log']:
             itpth=path.join(lcpth,'log',item)
@@ -66,6 +66,21 @@ for key, grp in df_aoa.groupby(['stage']):
     c=pearsonr(convgrp['aoa'],loss3m0)
     print("epoch %d conv 3 minus 0 corr r=%3.2f p<%.3f"%(key,c[0],c[1]))
 ax.set_xlabel('epoch')
+ax.set_ylim([0,10])
+ax.set_ylabel('loss (validation)')
+plt.show()
+
+
+#%%
+from scipy.stats import pearsonr
+
+fig,ax=plt.subplots()
+for key, grp in df_aoa.groupby(['stage']):
+    lossbylayer={}
+    plt.figure()
+    for nodekey, nodegrp in grp.groupby(['node']):
+        nodegrp.plot(ax=ax,x='conv', y='loss')
+ax.set_xlabel('conv')
 ax.set_ylim([0,10])
 ax.set_ylabel('loss (validation)')
 plt.show()

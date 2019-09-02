@@ -6,14 +6,25 @@
 #
 #!/bin/bash
 
-DATA="${HOME}/imagenet"
-MODELROOT="${HOME}/cornet"
-MODEL="${MODELROOT}/cornetS_2019-08-29latest_checkpoint.pth.tar"
-EXP="${HOME}/cornet_analysis/linear_classif"
+# Rhodri Cusack Trinity College Dublin, www.cusacklab.org, 2019-08-30
 
+DATA="${HOME}/imagenet"
 PYTHON="python"
 
-mkdir -p ${EXP}
+conda activate pytorch_p36
 
-${PYTHON} eval_linear.py --model ${MODEL} --data ${DATA} --conv 3 --lr 0.01 \
-  --wd -7 --tencrops --verbose --exp ${EXP} --workers 12
+for TIMEPOINT in 15 25 35 #30 00 05 10 20  
+do
+  for CONV in 0 1 2 3
+  do
+
+  MODEL="${HOME}/cornet_2019-08-29/cornetS_2019-08-29epoch_${TIMEPOINT}.pth.tar"
+      EXP="${HOME}/cornet_analysis/linearclass_time_${TIMEPOINT}_conv_${CONV}_v3"
+      echo "CORnet timepoint ${TIMEPOINT} block ${CONV}"
+      echo "${EXP}"
+      mkdir -p ${EXP}
+
+      ${PYTHON} eval_linear.py --model ${MODEL} --data ${DATA} --epochs 1 --conv ${CONV} --lr 0.01 --wd -7 --verbose --exp ${EXP} --workers 32 --aoaval
+      # Cannot use tencrops option as the lambda function breaks pickle in multiprocessing.reduction.dump
+  done
+done
