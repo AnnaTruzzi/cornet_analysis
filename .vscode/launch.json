@@ -11,14 +11,15 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "args": ["--data", "${HOME}/imagenet",
-                    "--model", "${HOME}/cornet/cornetS_2019-08-29latest_checkpoint.pth.tar",
+                    "--model", "${HOME}/cornet_2019-08-29/cornetS_2019-08-29epoch_30.pth.tar",
                     "--conv", "0",
                     "--lr", "0.01",
                     "--wd", "-7",
-                    "--tencrops",
                     "--verbose",
-                    "--exp", "${HOME}/cornet_analysis/linearclass_conv0",
-                    "--workers","12"
+                    "--exp", "${HOME}/cornet_analysis/linearclass_time_30_conv_3_v2",
+                    "--workers","16",
+                    "--epochs","1",
+                    "--aoaval"
             ]
         }
     ]
