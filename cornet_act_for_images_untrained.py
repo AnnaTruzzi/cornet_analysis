@@ -21,13 +21,9 @@ from collections import OrderedDict
 import pickle
 #import torchvision.models as models
 
-import models # Use deepcluster version
+import cornet # Use deepcluster version
 
 import boto3
-
-model_names = sorted(name for name in models.__dict__
-    if name.islower() and not name.startswith("__")
-    and callable(models.__dict__[name]))
 
 
 class ImageFolderWithPaths(datasets.ImageFolder):
@@ -56,8 +52,14 @@ def compute_features(dataloader, model, N):
         """
         _model_feats.append(output.cpu().numpy())
 
-    for m in model.features.modules():
-        if isinstance(m, nn.ReLU):
+    for m in model.V1():
+        if isinstance(m, nn.nonlin):
+            m.register_forward_hook(_store_feats)
+        elif isinstance(m, nn.V2):
+            m.register_forward_hook(_store_feats)
+        elif isinstance(m, nn.V4):
+            m.register_forward_hook(_store_feats)
+        elif isinstance(m, nn.IT):
             m.register_forward_hook(_store_feats)
 
     for i, input_tensor in enumerate(dataloader):
@@ -92,19 +94,17 @@ def get_activations(offset):
 if __name__ == '__main__':
 #    global args
 #    args = parser.parse_args()
-    modelpth = '/home/CUSACKLAB/annatruzzi/alexnet_models/'
-    checkpoint = torch.load(modelpth+'checkpoint_27.pth.tar')['state_dict']
-    checkpoint_new = OrderedDict()
-    for k, v in checkpoint.items():
-        name_temp = k.replace(".module", '') # remove '.module' of dataparallel
-        name = name_temp.replace("module.",'') # remove 'module.'
-        checkpoint_new[name]=v
-
-    model = models.alexnet(sobel=True, bn=True, out=1000) 
-    model.load_state_dict(checkpoint_new)
+    model = cornet.CORnet_S()
     model.cuda()
     image_pth = '/home/CUSACKLAB/annatruzzi/cichy2016/algonautsChallenge2019/Training_Data/92_Image_Set/92images' 
     act = get_activations(image_pth)
 
-    with open('/home/CUSACKLAB/annatruzzi/cichy2016/niko92_activations_pretrained_alexnet.pickle', 'wb') as handle:
+    with open('/home/CUSACKLAB/annatruzzi/cichy2016/niko92_activations_untrained_cornet.pickle', 'wb') as handle:
         pickle.dump(act, handle)
+
+
+for m in model.module:
+        print(m)
+
+    if 'ReLu' in m:
+        print(m)
