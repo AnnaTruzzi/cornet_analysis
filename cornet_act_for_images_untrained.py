@@ -4,6 +4,7 @@ import random
 import shutil
 import time
 import warnings
+import numpy as np 
 
 import torch
 import torch.nn as nn
@@ -50,17 +51,16 @@ def compute_features(dataloader, model, N):
     def _store_feats(layer, inp, output):
         """An ugly but effective way of accessing intermediate model features
         """
-        _model_feats.append(output.cpu().numpy())
+        _model_feats.append(np.reshape(output.cpu(), (len(output), -1)).numpy())
 
-    for m in model.V1():
-        if isinstance(m, nn.nonlin):
-            m.register_forward_hook(_store_feats)
-        elif isinstance(m, nn.V2):
-            m.register_forward_hook(_store_feats)
-        elif isinstance(m, nn.V4):
-            m.register_forward_hook(_store_feats)
-        elif isinstance(m, nn.IT):
-            m.register_forward_hook(_store_feats)
+    layers = ['V1','V2','V4','IT']
+    for l in layers:
+        if l=='V1':
+            getattr(getattr(model, l), 'nonlin2').register_forward_hook(_store_feats)
+            print(getattr(getattr(model, l), 'nonlin2'))
+        else:
+            getattr(getattr(model, l), 'nonlin3').register_forward_hook(_store_feats)
+            print(getattr(getattr(model, l), 'nonlin3'))
 
     for i, input_tensor in enumerate(dataloader):
         with torch.no_grad():
@@ -102,9 +102,5 @@ if __name__ == '__main__':
     with open('/home/CUSACKLAB/annatruzzi/cichy2016/niko92_activations_untrained_cornet.pickle', 'wb') as handle:
         pickle.dump(act, handle)
 
-
-for m in model.module:
-        print(m)
-
-    if 'ReLu' in m:
-        print(m)
+for l in layers:
+    print(l)
